@@ -35,24 +35,32 @@ class Ui_NewTeam(object):
             msg.setWindowTitle("Invalid Team Name")
             msg.exec_()
         else:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Team Created Successfully!!!\nNow go back to the previous window and select the players.")
-            msg.setWindowTitle("Team Created")
-            msg.exec_()
             conn = sqlite3.connect('Matches.db')
             c = conn.cursor()
-            #c.execute("SELECT * FROM Teams")
-            #print(c.fetchall())
-            c.execute("""INSERT INTO Teams VALUES (?, '', '', '', '', '', '', '', '', '', '', '')""", (teamname,))
-            #c.execute("SELECT * FROM Teams")
-            #print(c.fetchall())
+            c.execute("SELECT * FROM Teams")
+            l = c.fetchall()
+            flag = 0
+            for i in l:
+                if i[0] == teamname:
+                    flag = 1
+                    break
+            if flag == 0:
+                c.execute("DELETE FROM Teams WHERE player1 = ''")
+                c.execute("""INSERT INTO Teams VALUES (?, '', '', '', '', '', '', '', '', '', '', '')""", (teamname,))
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+                msg.setText("Team Created Successfully!!!\nNow go back to the previous window and select the players.")
+                msg.setWindowTitle("Team Created")
+                msg.exec_()
+            else:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+                msg.setText("Team with same name aleady exists!!\nPlease choose another name")
+                msg.setWindowTitle("Invalid Team Name")
+                msg.exec_()
             conn.commit()
             c.close()
             conn.close()
-            #self.backwindow = QtWidgets.QDialog()
-            #self.main = Ui_MainWindow()
-            #self.main.EnableButtons(self.backwindow)
 
 
 
