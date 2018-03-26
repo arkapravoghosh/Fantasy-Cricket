@@ -30,13 +30,9 @@ conn = sqlite3.connect('Matches.db')
 c = conn.cursor()
 c.execute("SELECT * from PlayerDetails")
 AllPlayers = c.fetchall()
-'''
-for i in AllPlayers:
-    name = i[0]
-    AllPlayerNames.append(name)
-'''
 c.close()
 conn.close()
+
 
 class Ui_MainWindow(object):
     def New_Team(self):
@@ -49,13 +45,18 @@ class Ui_MainWindow(object):
         self.DisplayAll()
         self.ClearDB()
         
+        
+        
     def EnableButtons(self):
         self.bat_btn.setEnabled(True)
         self.bow_btn.setEnabled(True)
         self.ar_btn.setEnabled(True)
         self.wk_btn.setEnabled(True)
         
+        
+        
     def Initialize(self):
+        #INITIALIZE THE MAIN WINDOW
         global Team_name
         global PointsAvailable
         global PointsUsed
@@ -88,8 +89,10 @@ class Ui_MainWindow(object):
         self.points_available.setText(_translate("MainWindow", "1000"))
         self.points_used.setText(_translate("MainWindow", "0"))
         
-
+        
+        
     def DisplayAll(self):
+        #DISPLAY ALL PLAYERS IN THE SELECTION LIST
         self.listWidget.clear()
         self.listWidget_2.clear()
         self.listWidget.addItem("")
@@ -104,45 +107,6 @@ class Ui_MainWindow(object):
                 self.listWidget.addItem("{}".format(s));
 
 
-        '''
-        conn = sqlite3.connect('Matches.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM Teams")
-        print(c.fetchall())
-        c.execute("SELECT teamname FROM Teams WHERE player1 = ''")
-        Team_name = c.fetchone()
-        Team_name = Team_name[0]
-        print(Team_name)
-        c.execute("SELECT * FROM Teams")
-        print(c.fetchall())
-        #c.execute("DELETE FROM Teams WHERE teamname = ?", (Team_name,))
-        c.execute("SELECT * FROM Teams")
-        print(c.fetchall())
-        conn.commit()
-        c.close()
-        conn.close()
-        self.team_name.setText(_translate("MainWindow", Team_name))
-        '''
-        '''
-    def mousePressEvent(self, QMouseEvent):
-        global Team_name
-        try:
-            if Team_name == 'Enter name here':
-                _translate = QtCore.QCoreApplication.translate
-                conn = sqlite3.connect('Matches.db')
-                c = conn.cursor()
-                c.execute("SELECT * FROM Teams WHERE player1 = ''")
-                Team_name = c.fetchone()
-                Team_name = Team_name[0]
-                self.team_name.setText(_translate("MainWindow", "{}".format(Team_name)))
-                c.execute("DELETE FROM Teams WHERE player1 = ''")
-                conn.commit()
-        except:
-            Team_name = 'Enter name here'
-        finally:
-            c.close()
-            conn.close()
-        '''
         
     def ClearDB(self):
         conn = sqlite3.connect('Matches.db')
@@ -152,12 +116,16 @@ class Ui_MainWindow(object):
         c.close()
         conn.commit()
         
+        
+        
     def Open_Team(self):
         self.ClearDB()
         self.window = QtWidgets.QMainWindow()
         self.new = Ui_Dialog()
         self.new.setupUi(self.window)
         self.window.show()
+    
+    
     
     def DisableButtons(self):
         self.bat_btn.setEnabled(False)
@@ -166,21 +134,21 @@ class Ui_MainWindow(object):
         self.wk_btn.setEnabled(False)
         
         
+        
+    def Handle_TeamNotCreated(self):
+            self.Reset()
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Please create a new team first.")
+            msg.setWindowTitle("Team Not Created")
+            msg.exec_()
+        
+        
+        
     def Save_Team(self):
         global Team_name
         if Team_name == 'Enter name here':
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Create a new team first!!")
-            msg.setWindowTitle("Create Team First")
-            msg.exec_()
-        elif(len(SelectedPlayers) > 11):
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("You can select atmost 11 players!!")
-            msg.setWindowTitle("Team formation error")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         elif(len(SelectedPlayers) < 11):
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Warning)
@@ -188,6 +156,34 @@ class Ui_MainWindow(object):
             msg.setWindowTitle("Team formation error")
             msg.exec_()
         else:
+            if no_of_bat == 0:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setText("You must select atleast 1 batsman!!!")
+                msg.setWindowTitle("Not Enough Batsmen")
+                msg.exec_()
+                return
+            if no_of_bwl == 0:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setText("You must select atleast 1 bowler!!!")
+                msg.setWindowTitle("Not Enough Bowlers")
+                msg.exec_()
+                return
+            if no_of_ar == 0:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setText("You must select atleast 1 allrounder!!!")
+                msg.setWindowTitle("Not Enough Allrounders")
+                msg.exec_()
+                return
+            if no_of_wk == 0:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setText("You must select atleast 1 wicket-keeper!!!")
+                msg.setWindowTitle("Not Enough Wicket-keepers")
+                msg.exec_()
+                return
             conn = sqlite3.connect('Matches.db')
             c = conn.cursor()
             Team = ()
@@ -198,14 +194,16 @@ class Ui_MainWindow(object):
             conn.commit()
             c.close()
             conn.close()
-            self.Reinitialize()
+            self.Reset()
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Warning)
             msg.setText("Team saved successfully!!")
             msg.setWindowTitle("Team Creation Successful")
             msg.exec_()
         
-    def Reinitialize(self):
+        
+        
+    def Reset(self):
         global Team_name
         Team_name = 'Enter name here'
         self.DisableButtons()
@@ -221,6 +219,7 @@ class Ui_MainWindow(object):
         self.team_name.setText(_translate("MainWindow", "Displayed Here"))
 
             
+        
     def Evaluate_Team(self):
         self.ClearDB()
         self.window = QtWidgets.QMainWindow()
@@ -228,6 +227,7 @@ class Ui_MainWindow(object):
         self.new.setupUi(self.window)
         self.window.show()
         
+
 
     def bat(self):
         try:
@@ -245,12 +245,7 @@ class Ui_MainWindow(object):
             else:
                 pass
         except:
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Please create a new team first.")
-            msg.setWindowTitle("Team Not Created")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         else:
             if self.team_name.text() == "Displayed Here":
                 c.execute("DELETE FROM Teams WHERE player1 = ''")
@@ -274,6 +269,7 @@ class Ui_MainWindow(object):
             conn.close()
             
     
+    
     def bwl(self):
         try:
             global Team_name
@@ -290,12 +286,7 @@ class Ui_MainWindow(object):
             else:
                 pass
         except:
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Please create a new team first.")
-            msg.setWindowTitle("Team Not Created")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         else:
             if self.team_name.text() == "Displayed Here":
                 c.execute("DELETE FROM Teams WHERE player1 = ''")
@@ -318,6 +309,8 @@ class Ui_MainWindow(object):
             c.close()
             conn.close()
             
+            
+            
     def ar(self):
         try:
             global Team_name
@@ -334,12 +327,7 @@ class Ui_MainWindow(object):
             else:
                 pass
         except:
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Please create a new team first.")
-            msg.setWindowTitle("Team Not Created")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         else:
             if self.team_name.text() == "Displayed Here":
                 c.execute("DELETE FROM Teams WHERE player1 = ''")
@@ -362,6 +350,8 @@ class Ui_MainWindow(object):
             c.close()
             conn.close()
             
+            
+            
     def wk(self):
         try:
             global Team_name
@@ -378,12 +368,7 @@ class Ui_MainWindow(object):
             else:
                 pass
         except:
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Please create a new team first.")
-            msg.setWindowTitle("Team Not Created")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         else:
             if self.team_name.text() == "Displayed Here":
                 c.execute("DELETE FROM Teams WHERE player1 = ''")
@@ -407,6 +392,7 @@ class Ui_MainWindow(object):
             conn.close()
 
 
+
     def AddPlayer(self, item):
         try:
             global Team_name
@@ -423,12 +409,7 @@ class Ui_MainWindow(object):
             else:
                 pass
         except:
-            self.Reinitialize()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Please create a new team first.")
-            msg.setWindowTitle("Team Not Created")
-            msg.exec_()
+            self.Handle_TeamNotCreated()
         else:
             if self.team_name.text() == "Displayed Here":
                 c.execute("DELETE FROM Teams WHERE player1 = ''")
@@ -459,35 +440,6 @@ class Ui_MainWindow(object):
                 msg.setWindowTitle("All Players Selected")
                 msg.exec_()
                 return
-            if total_no_of_players == 10:
-                if no_of_bat == 0:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
-                    msg.setText("You must select atleast 1 batsman!!!")
-                    msg.setWindowTitle("Not Enough Batsmen")
-                    msg.exec_()
-                    return
-                if no_of_bwl == 0:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
-                    msg.setText("You must select atleast 1 bowler!!!")
-                    msg.setWindowTitle("Not Enough Bowlers")
-                    msg.exec_()
-                    return
-                if no_of_ar == 0:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
-                    msg.setText("You must select atleast 1 allrounder!!!")
-                    msg.setWindowTitle("Not Enough Allrounders")
-                    msg.exec_()
-                    return
-                if no_of_wk == 0:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
-                    msg.setText("You must select atleast 1 wicket-keeper!!!")
-                    msg.setWindowTitle("Not Enough Wicket-keepers")
-                    msg.exec_()
-                    return
             if PointsAvailable - value < 0:
                 msg = QtWidgets.QMessageBox()
                 msg.setIcon(QtWidgets.QMessageBox.Warning)
@@ -550,7 +502,6 @@ class Ui_MainWindow(object):
             conn.commit()
             c.close()
             conn.close()
-
         
         
         
@@ -606,20 +557,8 @@ class Ui_MainWindow(object):
         self.wicketkeeper.setText(_translate("MainWindow", "{}".format(no_of_wk)))
         self.points_available.setText(_translate("MainWindow", "{}".format(PointsAvailable)))
         self.points_used.setText(_translate("MainWindow", "{}".format(PointsUsed)))
-        '''
-        self.listWidget.clear()
-        self.listWidget.addItem("")
-        self.listWidget.addItem("")
-        for i in CurrentPlayers:
-                s = i[0]
-                self.listWidget_2.addItem("{}".format(s));
-        self.listWidget_2.clear()
-        self.listWidget_2.addItem("")
-        self.listWidget_2.addItem("")
-        for i in SelectedPlayers:
-                s = i[0]
-                self.listWidget_2.addItem("{}".format(s));
-        '''
+
+
         
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -709,11 +648,9 @@ class Ui_MainWindow(object):
         self.listWidget.setFont(font)
         self.listWidget.setStyleSheet("color: rgb(3, 190, 159);")
         self.listWidget.setObjectName("listWidget")
-        
         ''''''
         self.listWidget.itemDoubleClicked.connect(self.AddPlayer)
         ''''''
-        
         self.listWidget_2 = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget_2.setGeometry(QtCore.QRect(460, 240, 261, 311))
         font = QtGui.QFont()
@@ -722,11 +659,9 @@ class Ui_MainWindow(object):
         self.listWidget_2.setFont(font)
         self.listWidget_2.setStyleSheet("color: rgb(3, 190, 159);")
         self.listWidget_2.setObjectName("listWidget_2")
-
         ''''''
         self.listWidget_2.itemDoubleClicked.connect(self.RemovePlayer)
         ''''''
-        
         self.team_name = QtWidgets.QLabel(self.centralwidget)
         self.team_name.setGeometry(QtCore.QRect(570, 250, 131, 21))
         font = QtGui.QFont()
@@ -900,13 +835,9 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.new_team.setFont(font)
         self.new_team.setObjectName("new_team")
-        
-        
         ''''''
         self.new_team.triggered.connect(self.New_Team)
         ''''''
-        
-        
         self.open_team = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setFamily("Comic Sans MS")
@@ -915,33 +846,27 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.open_team.setFont(font)
         self.open_team.setObjectName("open_team")
-        
         ''''''
         self.open_team.triggered.connect(self.Open_Team)
         ''''''
-        
         self.save_team = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setFamily("Comic Sans MS")
         font.setPointSize(10)
         self.save_team.setFont(font)
         self.save_team.setObjectName("save_team")
-        
         ''''''
         self.save_team.triggered.connect(self.Save_Team)
         ''''''
-        
         self.evaluate_team = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setFamily("Comic Sans MS")
         font.setPointSize(10)
         self.evaluate_team.setFont(font)
         self.evaluate_team.setObjectName("evaluate_team")
-        
         ''''''
         self.evaluate_team.triggered.connect(self.Evaluate_Team)
         ''''''
-        
         self.manage_teams.addAction(self.new_team)
         self.manage_teams.addAction(self.open_team)
         self.manage_teams.addAction(self.save_team)

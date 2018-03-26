@@ -13,8 +13,9 @@ selectedteam = 'Select Team'
 selectedmatch = 'Select Match'
 
 
+
 class Ui_evaluate_team(object):
-    def CalculateScore(self, l):
+    def CalculatePlayerScore(self, l):
         """
         INPUT: A tuple containing the stats of a player
         OUTPUT: An integer denoting the score of the player
@@ -92,10 +93,12 @@ class Ui_evaluate_team(object):
         for i in t:
             c.execute("SELECT * from {} WHERE name = ?".format(selectedmatch), (i,))
             l = c.fetchone()
-            totalscore += self.CalculateScore(l)
+            totalscore += self.CalculatePlayerScore(l)
         self.points.setText(_translate("evaluate_team", "{}".format(str(totalscore))))
         c.close()
         conn.close()
+        
+        
         
     def TeamChanged(self):
         global selectedteam
@@ -111,6 +114,8 @@ class Ui_evaluate_team(object):
         else:
             self.Evaluate_btn.setEnabled(False)
             
+            
+            
     def MatchChanged(self):
         global selectedteam
         global selectedmatch
@@ -124,6 +129,8 @@ class Ui_evaluate_team(object):
             self.points.setText(_translate("evaluate_team", "0"))
         else:
             self.Evaluate_btn.setEnabled(False)
+        
+        
         
     def setupUi(self, evaluate_team):
         evaluate_team.setObjectName("evaluate_team")
@@ -151,7 +158,6 @@ class Ui_evaluate_team(object):
         self.select_match.setFont(font)
         self.select_match.setCurrentText("Select Match")
         self.select_match.setObjectName("select_match")
-        
         ''''''
         conn = sqlite3.connect('Matches.db')
         c = conn.cursor()
@@ -169,7 +175,8 @@ class Ui_evaluate_team(object):
                 list2.append(matchname[0])
         c.close()
         conn.close()
-        
+        ''''''
+        ''''''
         self.select_team.addItems(list1)
         self.select_match.addItems(list2)
         ''''''
@@ -217,11 +224,9 @@ class Ui_evaluate_team(object):
         font.setPointSize(10)
         self.Evaluate_btn.setFont(font)
         self.Evaluate_btn.setObjectName("Evaluate_btn")
-        
         ''''''
         self.Evaluate_btn.clicked.connect(self.CalculateMatchScore)
         ''''''
-        
         self.players = QtWidgets.QListWidget(evaluate_team)
         self.players.setGeometry(QtCore.QRect(80, 180, 191, 221))
         font = QtGui.QFont()

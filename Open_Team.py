@@ -11,6 +11,7 @@ import sqlite3
 
 selectedteam = 'Select Team'
 
+
 class Ui_Dialog(object):
     def TeamChanged(self):
         global selectedteam
@@ -71,7 +72,6 @@ class Ui_Dialog(object):
         self.select_team.setGeometry(QtCore.QRect(180, 90, 161, 31))
         self.select_team.setFont(font)
         self.select_team.setObjectName("select_team")
-        
         ''''''
         conn = sqlite3.connect('Matches.db')
         c = conn.cursor()

@@ -6,7 +6,6 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
 
@@ -16,6 +15,12 @@ class Ui_NewTeam(object):
     def CheckName(self):
         teamname = self.team_name.text()
         teamname = teamname.strip()
+        conn = sqlite3.connect('Matches.db')
+        c = conn.cursor()
+        c.execute("DELETE FROM Teams WHERE player1 = ''")
+        conn.commit()
+        c.close()
+        conn.close()
         if len(teamname) == 0:
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Warning)
@@ -45,7 +50,6 @@ class Ui_NewTeam(object):
                     flag = 1
                     break
             if flag == 0:
-                c.execute("DELETE FROM Teams WHERE player1 = ''")
                 c.execute("""INSERT INTO Teams VALUES (?, '', '', '', '', '', '', '', '', '', '', '')""", (teamname,))
                 msg = QtWidgets.QMessageBox()
                 msg.setIcon(QtWidgets.QMessageBox.Information)
@@ -61,8 +65,6 @@ class Ui_NewTeam(object):
             conn.commit()
             c.close()
             conn.close()
-
-
 
 
     
@@ -100,13 +102,10 @@ class Ui_NewTeam(object):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        
-        
         ''''''
         self.pushButton.clicked.connect(self.CheckName)
         ''''''
         
-
         self.retranslateUi(NewTeam)
         QtCore.QMetaObject.connectSlotsByName(NewTeam)
 
