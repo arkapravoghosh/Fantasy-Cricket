@@ -2,7 +2,6 @@
 """
 Created on Fri Mar 23 01:44:09 2018
 
-@author: principal
 """
 
 import sqlite3
