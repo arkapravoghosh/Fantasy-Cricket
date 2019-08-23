@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 23 01:44:09 2018
-
-"""
-
 import sqlite3
 
 selectedteam = 'Fantasy11'
